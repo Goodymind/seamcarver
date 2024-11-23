@@ -24,29 +24,42 @@ class SeamCarver(Picture):
         vertical seam
         '''    
         # +1 is a neat little trick
-        energies = [[0]* (self.width() +1) for _ in range(self.height() + 1)]
+        energies = [[0]* (self.width()) for _ in range(self.height())]
         
         def smallest_triple(i,j):
             '''
             returns either i-1, i, or i+1 whoever is the smallest
             '''
 
-            left = energies[i-1, j]
-            mid = energies[i, j]
-            right = energies[i+1, j]
-            
+            mid = energies[i, j] if (i, j) in energies else 0
+            left = energies[i-1, j] if (i-1, j) in energies else mid + 1
+            right = energies[i+1, j] if (i+1, j) in energies else mid + 1
+            if left < mid and left < right:
+                return i-1
+            if mid < left and mid < right:
+                return i
+            if right < mid and right < left:
+                return i+1
+            return i
 
         
         # get the energies
         
         for j in range(self.height()):
             for i in range(self.width()):
-                energies[i][j] = self.energy(i, j) + min(energies[i-1][j-1], energies[i][j-1], energies[i+1][j-1])
+                smallest_i = smallest_triple(i, j-1)
+                energies[i,j] = self.energy(i, j) + energies[smallest_i, j-1]
                 # no need to worry for first row case because [0-1] = [height+1] = 0
-
+        
         # find the shortest cost path
-
-        # once we have the energies, we can now path downward...
+        # smallest_i now contains the index of the most recent path
+        # we now iterate upwards
+        path = [energies[i,j]]
+        for j in range(self.height()-1, -1):
+            smallest_i = smallest_triple(smallest_i, j)
+            path.append(energies[smallest_i, j])
+        
+        return path
     def find_horizontal_seam(self) -> list[int]:
         '''
         Return a sequence of indices representing the lowest-energy
