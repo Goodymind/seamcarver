@@ -10,6 +10,9 @@ class SeamCarver(Picture):
         '''
         Return the energy of pixel at column i and row j
         '''
+        if i < 0 or i > self.width() - 1 or j < 0 or j > self.height() - 1:
+            raise IndexError
+
         i0 = (i - 1 + self.width()) % self.width()
         i2 = (i + 1 + self.width()) % self.width()
         j0 = (j - 1 + self.height()) % self.height()
@@ -62,41 +65,66 @@ class SeamCarver(Picture):
             smallest_cost_i = smallest_triple(smallest_cost_i, j)
             path[j] = smallest_cost_i 
         return path
+    
+    def __transpose(self):
+        '''
+        Switches x and y values
+        '''
+        original_values = [[0]*self.height() for _ in range(self.width())]
+        original_width = self.width()
+        original_height = self.height()
+        for j in range(self.height()):
+            for i in range(self.width()):
+                original_values[i][j] = self[i,j]
+                del self[i,j]
+        for j in range(self.height()):
+            for i in range(self.width()):
+                self[j, i] = original_values[i][j]
+        self._width = original_height
+        self._height = original_width
+    
     def find_horizontal_seam(self) -> list[int]:
         '''
         Return a sequence of indices representing the lowest-energy
         horizontal seam
         '''
-        def transpose():
-            '''
-            Switches x and y values
-            '''
-            original_values = [[0]*self.height() for _ in range(self.width())]
-            original_width = self.width()
-            original_height = self.height()
-            for j in range(self.height()):
-                for i in range(self.width()):
-                    original_values[i][j] = self[i,j]
-            for j in range(self.height()):
-                for i in range(self.width()):
-                    self[j, i] = original_values[i][j]
-            self._width = original_height
-            self._height = original_width
-        transpose()
+        self.__transpose()
         value = self.find_vertical_seam()
-        transpose()
+        self.__transpose()
         return value
+    
+    def __seam_check(self, seam: list[int]):
+        for i in range(len(seam)-1):
+            if abs(seam[i+1] - seam[i]) > 1:
+                return False
+        return True
+    
     def remove_vertical_seam(self, seam: list[int]):
         '''
         Remove a vertical seam from the picture
         '''
-        raise NotImplementedError
+        if len(seam) != self.height() or self.width() == 1:
+            raise SeamError
+        if not self.__seam_check(seam):
+            raise SeamError
+
+        for j in range(self.height()):
+            for i in range(seam[j], self.width()-1):
+                self[i,j] = self[i+1,j]
+            del self[self.width()-1,j]
+        self._width += -1
 
     def remove_horizontal_seam(self, seam: list[int]):
         '''
         Remove a horizontal seam from the picture
         '''
-        raise NotImplementedError
+        if len(seam) != self.width() or self.height() == 1:
+            raise SeamError
+        if not self.__seam_check(seam):
+            raise SeamError
+        self.__transpose()
+        self.remove_vertical_seam(seam)
+        self.__transpose()
 
 class SeamError(Exception):
     pass
