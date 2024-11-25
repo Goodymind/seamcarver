@@ -29,11 +29,11 @@ class SeamCarverTester(unittest.TestCase):
         seam = ex3.find_vertical_seam()
         self.assertEqual(seam, [3, 4, 3, 2, 2])
 
-    # def sctest_004_find_horizontal_seam_ex3(self):
-    #     'Find horizontal seam from example 3'
-    #     ex3 = SeamCarver(Image.open('data/6x5.png'))
-    #     seam = ex3.find_horizontal_seam()
-    #     self.assertEqual(seam, [2, 2, 1, 2, 1, 2])
+    def sctest_004_find_horizontal_seam_ex3(self):
+        'Find horizontal seam from example 3'
+        ex3 = SeamCarver(Image.open('data/6x5.png'))
+        seam = ex3.find_horizontal_seam()
+        self.assertEqual(seam, [2, 2, 1, 2, 1, 2])
 
     # def sctest_005_remove_vertical_seam_ex3(self):
     #     'Remove vertical seam from example 3'

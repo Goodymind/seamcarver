@@ -30,8 +30,8 @@ class SeamCarver(Picture):
             '''
             returns either i-1, i, or i+1 whoever is the smallest
             '''
-            i0 = (i - 1 + self.width()) % self.width()
-            i2 = (i + 1 + self.width()) % self.width()
+            i0 = max(i-1, 0)
+            i2 = min(i+1, self.width()-1)
             mid = costs[i][j]
             left = costs[i0][j]
             right = costs[i2][j]
@@ -42,6 +42,8 @@ class SeamCarver(Picture):
             if right < mid and right < left:
                 return i2
             return i
+
+
         # get the costs
         for j in range(self.height()):
             smallest_cost_i = 0
@@ -65,8 +67,25 @@ class SeamCarver(Picture):
         Return a sequence of indices representing the lowest-energy
         horizontal seam
         '''
-        raise NotImplementedError
-
+        def transpose():
+            '''
+            Switches x and y values
+            '''
+            original_values = [[0]*self.height() for _ in range(self.width())]
+            original_width = self.width()
+            original_height = self.height()
+            for j in range(self.height()):
+                for i in range(self.width()):
+                    original_values[i][j] = self[i,j]
+            for j in range(self.height()):
+                for i in range(self.width()):
+                    self[j, i] = original_values[i][j]
+            self._width = original_height
+            self._height = original_width
+        transpose()
+        value = self.find_vertical_seam()
+        transpose()
+        return value
     def remove_vertical_seam(self, seam: list[int]):
         '''
         Remove a vertical seam from the picture
