@@ -2,7 +2,7 @@
 
 from picture import Picture
 from math import sqrt
-import sys
+import sys 
 
 class SeamCarver(Picture):
     ## TO-DO: fill in the methods below
@@ -70,18 +70,29 @@ class SeamCarver(Picture):
         '''
         Switches x and y values
         '''
-        original_values = [[0]*self.height() for _ in range(self.width())]
+        # original_values = [[0]*self.height() for _ in range(self.width())]
+        original_values = {}
         original_width = self.width()
         original_height = self.height()
+        to_remove = []
         for j in range(self.height()):
             for i in range(self.width()):
-                original_values[i][j] = self[i,j]
-                del self[i,j]
-        for j in range(self.height()):
-            for i in range(self.width()):
-                self[j, i] = original_values[i][j]
+                original_values[j,i] = self[i,j]
+                # del self[i,j]
+                if i >= self.height():
+                    # del self[i, j]
+                    to_remove.append((i,j))
+                if j >= self.width():
+                    # del self[i, j]
+                    to_remove.append((i,j))
         self._width = original_height
         self._height = original_width
+        self.update(original_values)
+        for i, j in to_remove:
+            del self[i, j]
+        # for j in range(self.height()):
+        #     for i in range(self.width()):
+        #         self[j, i] = original_values[j,i]
     
     def find_horizontal_seam(self) -> list[int]:
         '''
@@ -108,11 +119,11 @@ class SeamCarver(Picture):
         if not self.__seam_check(seam):
             raise SeamError
 
-        for j in range(self.height()):
-            for i in range(seam[j], self.width()-1):
-                self[i,j] = self[i+1,j]
-            del self[self.width()-1,j]
         self._width += -1
+        for j in range(self.height()):
+            for i in range(seam[j], self.width()):
+                self[i,j] = self[i+1,j]
+            del self[self.width(),j]
 
     def remove_horizontal_seam(self, seam: list[int]):
         '''
