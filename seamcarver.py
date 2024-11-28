@@ -5,7 +5,6 @@ from math import sqrt
 import sys 
 
 class SeamCarver(Picture):
-    ## TO-DO: fill in the methods below
     def energy(self, i: int, j: int) -> float:
         '''
         Return the energy of pixel at column i and row j
@@ -70,7 +69,6 @@ class SeamCarver(Picture):
         '''
         Switches x and y values
         '''
-        # original_values = [[0]*self.height() for _ in range(self.width())]
         original_values = {}
         original_width = self.width()
         original_height = self.height()
@@ -78,21 +76,13 @@ class SeamCarver(Picture):
         for j in range(self.height()):
             for i in range(self.width()):
                 original_values[j,i] = self[i,j]
-                # del self[i,j]
-                if i >= self.height():
-                    # del self[i, j]
-                    to_remove.append((i,j))
-                if j >= self.width():
-                    # del self[i, j]
+                if i >= self.height() or j >= self.width():
                     to_remove.append((i,j))
         self._width = original_height
         self._height = original_width
         self.update(original_values)
         for i, j in to_remove:
             del self[i, j]
-        # for j in range(self.height()):
-        #     for i in range(self.width()):
-        #         self[j, i] = original_values[j,i]
     
     def find_horizontal_seam(self) -> list[int]:
         '''
